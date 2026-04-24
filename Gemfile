@@ -53,3 +53,9 @@ group :test do
   gem "selenium-webdriver"
 end
 gem "seed_dump"
+
+gem "faraday", "~> 2.14"
+
+gem "ferrum", "~> 0.17.2"
+
+gem "redis", "~> 5.4"

@@ -1,0 +1,20 @@
+<h1>学生成绩列表</h1>
+
+<table class="table table-striped" style="text-align: left;">
+  <thead>
+    <tr>
+      <th>账号</th>
+      <th>法律</th>
+      <th>数学</th>
+      <th>语文</th>
+      <th>社会</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @students.each do |s| %>
+      <%# 这里直接渲染 Partial，Partial 内部包含了订阅逻辑 %>
+      <%= render "exam/student_row", s: s %>
+    <% end %>
+  </tbody>
+</table>

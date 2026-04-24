@@ -1,0 +1,25 @@
+<tr id="<%= dom_id(s) %>">
+  <%= turbo_stream_from s %>
+  
+  <td><%= s.username %></td>
+  <td><%= s.law_score %></td>
+  <td><%= s.math_score %></td>
+  <td><%= s.chinese_score %></td>
+  <td><%= s.social_score %></td>
+  
+  <td data-controller="countdown" 
+      data-countdown-updated-at-value="<%= s.updated_at.iso8601 %>">
+    
+    <% if s.can_exam? %>
+      <%= button_to '考试', run_exam_exam_path(s), method: :post %>
+    <% else %>
+      <%# 倒计时显示 %>
+      <span data-countdown-target="timer" style="color: #e67e22; font-weight: bold;">--:--</span>
+      
+      <%# 隐藏的按钮：等倒计时结束直接变出来 %>
+      <div data-countdown-target="button" style="display: none;">
+        <%= button_to '考试', run_exam_exam_path(s), method: :post %>
+      </div>
+    <% end %>
+  </td>
+</tr>
