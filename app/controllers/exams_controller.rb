@@ -1,10 +1,6 @@
-class ExamController < ApplicationController
+class ExamsController < ApplicationController
   # 必须跳过 CSRF 校验（如果你是通过 API 或者简单的异步按钮调用）
   skip_before_action :verify_authenticity_token, only: [:run_exam]
-
-  def index
-		@students = Student.all
-	end
 
   def run_exam
     # 1. 锁定学生
@@ -17,10 +13,11 @@ class ExamController < ApplicationController
 
     # 3. 异步启动考试任务
     # 将耗时的“登录-取题-AI识别-答题”逻辑丢进后台
-    ExamJob.perform_later(@student.id, 12)
-    ExamJob.perform_later(@student.id, 13)
-    ExamJob.perform_later(@student.id, 14)
-    ExamJob.perform_later(@student.id, 15)
+    # student.touch
+    ExamJob.perform_later(@student.id, "15f22328481f4fdab9958f50cc2ff575")
+    ExamJob.perform_later(@student.id, "3c5cfa90841b467d96a666a1e7a656b3")
+    ExamJob.perform_later(@student.id, "df7a5b1d992e4c4a85165a8d2ef77489")
+    ExamJob.perform_later(@student.id, "f0cbba2c86834c62aed37be7ccb0f1d6")
 
     # 4. 返回 204 No Content
     # 因为有 turbo_stream_from，页面会自动等待 Model 的下一次广播来更新分数

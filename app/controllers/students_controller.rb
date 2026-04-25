@@ -1,4 +1,4 @@
-class LoginController < ApplicationController
+class StudentsController < ApplicationController
   # 禁用 CSRF 校验，确保自动化脚本可顺畅 POST
   skip_before_action :verify_authenticity_token
 
@@ -11,56 +11,49 @@ class LoginController < ApplicationController
     IuYevLtf0dBLC4UdbQIDAQAB
     -----END PUBLIC KEY-----
   PEM
+  
+  def index
+    @students = Student.order(created_at: :desc)
+	end
 
-  # 登录接口入口
-  # POST /login
   # Params: { username: "...", password: "..." }
-  def new
-    username = params[:username]
-    password = params[:password]
+  def create
+    attrs = student_params
+    username = attrs[:username]
+    password = attrs[:password]
     base_url = "http://cj.nbjyzx.net:10000"
     
-    # 1. 查找或初始化学生
     student = Student.find_or_initialize_by(username: username)
     student.password = password if password.present?
 
-    # 2. 尝试复用 Session 同步成绩 (此时 sync_exams! 内部使用数据库里的旧 cookie)
+    # 1. 尝试复用 Session
     if student.cookie.present?
       puts "🔄 [#{username}] 尝试复用 Cookie..."
       if student.sync_exams!
-        return render json: { 
-          status: 'success', 
-          source: 'session_reuse', 
-          student: student.as_json(except: [:cookie, :password]) 
-        }
+        # 必须 return，否则代码会继续往下跑登录流程
+        return redirect_to root_path, notice: "添加成功 (Session 复用)"
       end
     end
 
-    # 3. 执行完整登录流程 (包含 AI 识别验证码)
+    # 2. 执行完整登录
     puts "🔑 [#{username}] Session 失效，正在重新登录..."
     result = perform_login_process(base_url, username, password)
-
-    # 兼容 Symbol 或 String 的 Key
     code = result[:code] || result["code"]
     
     if code == 0
       new_cookie = result["cookie"]
+      student.update(cookie: new_cookie)
       
-      # 核心修改：直接把新拿到的 cookie 传给实例方法
-      # sync_exams!(new_cookie) 内部会执行：更新成绩 -> 保存新 cookie -> save!
+      # 这里建议先 sync 后再重定向
       if student.sync_exams!(new_cookie)
-        render json: { 
-          status: 'success', 
-          source: 'fresh_login', 
-          student: student.as_json(except: [:cookie, :password]) 
-        }
+        redirect_to root_path, notice: "添加成功 (新登录)"
       else
-        render json: { status: 'fail', msg: '登录成功但同步成绩单失败' }
+        redirect_to root_path, alert: "登录成功但同步成绩失败"
       end
     else
-      # 登录失败，清空无效 Cookie
       student.update(cookie: nil)
-      render json: result
+      # 登录失败也必须重定向，否则页面不会刷新清空输入框
+      redirect_to root_path, alert: "添加失败: #{result['msg'] || result[:msg]}"
     end
   end
 
@@ -183,5 +176,9 @@ class LoginController < ApplicationController
     cipher = OpenSSL::Cipher.new('AES-128-ECB').encrypt
     cipher.key = key
     Base64.strict_encode64(cipher.update(data) + cipher.final)
+  end
+
+  def student_params
+    params.require(:student).permit(:username, :password)
   end
 end

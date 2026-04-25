@@ -3,7 +3,7 @@ class Student < ApplicationRecord
     broadcast_replace_later_to(
       self, 
       target: ActionView::RecordIdentifier.dom_id(self), 
-      partial: "exam/student_row", 
+      partial: "students/row", 
       locals: { s: self }
     )
   end

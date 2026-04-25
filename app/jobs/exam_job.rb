@@ -37,13 +37,14 @@ class ExamJob < ApplicationJob
     end
 
     # 4. 交卷结算
+    sleep rand(11..15).minutes
     finish_and_update_score(student, record_id)
   end
 
   private
 
   def start_exam(student)
-    response = @conn.post("/stuCurUser/startExam_mock") do |req|
+    response = @conn.post("/stuCurUser/startExamOfficial") do |req|
       req.headers['Cookie'] = student.cookie
       req.headers['X-Requested-With'] = "XMLHttpRequest"
       req.body = { examPaperId: @paper_id }
@@ -53,7 +54,7 @@ class ExamJob < ApplicationJob
   end
 
   def get_questions(student, record_id)
-    response = @conn.get("/stuCurUser/getExamDetail_mock") do |req|
+    response = @conn.get("/stuCurUser/getExamDetailOfficial") do |req|
       req.headers['Cookie'] = student.cookie
       req.headers['X-Requested-With'] = "XMLHttpRequest"
       req.params = { recordId: record_id }
@@ -63,7 +64,7 @@ class ExamJob < ApplicationJob
   end
 
   def save_answer(student, record_id, question_id, choice_val)
-    @conn.post("/stuCurUser/saveAnswer_mock") do |req|
+    @conn.post("/stuCurUser/saveAnswerOfficial") do |req|
       req.headers['Cookie'] = student.cookie
       req.headers['X-Requested-With'] = "XMLHttpRequest"
       req.body = {
@@ -75,22 +76,12 @@ class ExamJob < ApplicationJob
   end
 
   def finish_and_update_score(student, record_id)
-    response = @conn.post("/stuCurUser/submitExam_mock") do |req|
+    @conn.post("/stuCurUser/submitExamOfficial") do |req|
       req.headers['Cookie'] = student.cookie
       req.headers['X-Requested-With'] = "XMLHttpRequest"
       req.body = { recordId: record_id }
     end
-    
-    res = JSON.parse(response.body) rescue {}
-    if res["code"] == 0
-      score = res.dig("data", "studentScore") || 0
-      case @paper_id
-      when "12" then student.update(chinese_score: score)
-      when "13" then student.update(math_score: score)
-      when "14" then student.update(law_score: score)
-      when "15" then student.update(social_score: score)
-      end
-      student.touch
-    end
+    sleep 10
+    student.sync_exams!
   end
 end
