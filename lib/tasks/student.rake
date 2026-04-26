@@ -9,6 +9,7 @@ namespace :student do
     
     # 待导入数据
     data = <<~DATA
+      13816793613 020625@Crgz
       15911702087 24909X@Crgz
       15094106872 271237@Crgz
       13913933727 221619@Crgz
@@ -277,8 +278,9 @@ namespace :student do
 
           # 修正查找逻辑
           student = Student.find_by(username: username)
+          student.sync_exams!
           
-          if student
+          if student && (student.law_score < 60 || student.math_score < 60 || student.chinese_score < 60 || student.social_score < 60)
             # 依次执行四门考试（同步模式）
             # 注意：如果 ExamJob 内部有 sleep 10-15 分钟，脚本会在这里等很久
             ExamJob.perform_now(student.id, "15f22328481f4fdab9958f50cc2ff575")

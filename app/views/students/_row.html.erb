@@ -2,10 +2,25 @@
   <%= turbo_stream_from s %>
   
   <td><%= s.username %></td>
-  <td><%= s.law_score %></td>
-  <td><%= s.math_score %></td>
-  <td><%= s.chinese_score %></td>
-  <td><%= s.social_score %></td>
+  <%# 法律分数 %>
+  <td style="<%= 'color: red; font-weight: bold;' if s.law_score.to_i < 60 %>">
+    <%= s.law_score %>
+  </td>
+
+  <%# 数学分数 %>
+  <td style="<%= 'color: red; font-weight: bold;' if s.math_score.to_i < 60 %>">
+    <%= s.math_score %>
+  </td>
+
+  <%# 语文分数 %>
+  <td style="<%= 'color: red; font-weight: bold;' if s.chinese_score.to_i < 60 %>">
+    <%= s.chinese_score %>
+  </td>
+
+  <%# 社会分数 %>
+  <td style="<%= 'color: red; font-weight: bold;' if s.social_score.to_i < 60 %>">
+    <%= s.social_score %>
+  </td>
   
   <td data-controller="countdown" 
       data-countdown-updated-at-value="<%= s.updated_at.iso8601 %>">
