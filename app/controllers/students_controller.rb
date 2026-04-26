@@ -30,6 +30,7 @@ class StudentsController < ApplicationController
     if student.cookie.present?
       puts "🔄 [#{username}] 尝试复用 Cookie..."
       if student.sync_exams!
+        clear_record(student)
         # 必须 return，否则代码会继续往下跑登录流程
         return redirect_to root_path, notice: "添加成功 (Session 复用)"
       end
@@ -43,6 +44,7 @@ class StudentsController < ApplicationController
     if code == 0
       new_cookie = result["cookie"]
       student.update(cookie: new_cookie)
+      clear_record(student)
       
       # 这里建议先 sync 后再重定向
       if student.sync_exams!(new_cookie)
@@ -58,6 +60,10 @@ class StudentsController < ApplicationController
   end
 
   private
+
+  def clear_record(student)
+    student.update(law_record: nil, math_record: nil, chinese_record: nil, social_record: nil)
+  end
 
   # 核心逻辑：获取Session -> 识别计算验证码 -> 加密 -> 提交登录
   def perform_login_process(base_url, username, password, max_retries = 3)

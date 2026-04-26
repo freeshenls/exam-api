@@ -1,11 +1,3 @@
-Student.create!([
-  {username: "15911702087", password: "24909X@Crgz", cookie: "JSESSIONID=19cce965-d655-4bce-835f-c1bdc490f0f2", law_score: 97.5, law_count: 1, math_score: 0.0, math_count: 0, chinese_score: 0.0, chinese_count: 0, social_score: nil, social_count: 0},
-  {username: "15094106872", password: "271237@Crgz", cookie: "JSESSIONID=13050ccb-6b67-4794-999b-876655e0e4d8", law_score: nil, law_count: 0, math_score: nil, math_count: 0, chinese_score: nil, chinese_count: 0, social_score: nil, social_count: 0},
-  {username: "13913933727", password: "221619@Crgz", cookie: "JSESSIONID=f9ae82f5-8efa-436d-aea9-022cc94ffc84", law_score: nil, law_count: 0, math_score: nil, math_count: 0, chinese_score: nil, chinese_count: 0, social_score: nil, social_count: 0},
-  {username: "18961620956", password: "145666@Crgz", cookie: "JSESSIONID=1e992354-7482-4e6a-92b8-62dbda08d5e0", law_score: nil, law_count: 0, math_score: nil, math_count: 0, chinese_score: nil, chinese_count: 0, social_score: nil, social_count: 0},
-  {username: "15190392526", password: "125644@Crgz", cookie: "JSESSIONID=acfcf3ac-d226-406c-a65d-3b3cc3c5c1d1", law_score: nil, law_count: 0, math_score: nil, math_count: 0, chinese_score: nil, chinese_count: 0, social_score: nil, social_count: 0},
-  {username: "13666601976", password: "271768@Crgz", cookie: "JSESSIONID=f90780ad-8c3e-4a74-bd54-180d574efb0a", law_score: nil, law_count: 0, math_score: nil, math_count: 0, chinese_score: nil, chinese_count: 0, social_score: nil, social_count: 0}
-])
 QuestionBank.create!([
   {paper_id: "f0cbba2c86834c62aed37be7ccb0f1d6", exam_question_id: "1897", answer: "B", question_title: "依次填入下面各句横线上的词语，最恰当的一组是 （ &nbsp; &nbsp;）（1）近年来，由于各级政府加大了治理中小学乱收费现象的工作力度，多数地区乱收费的发展势头得到了有效 _____。（2）小说中的典型形象虽然有生活_____的，但仍属于虚构的形象。（3）出了差错，要多从自己身上找原因，不要老是埋怨别人，____责任。（4）正确与错误之间的____,有时并不是一下子就能分清的。"},
   {paper_id: "df7a5b1d992e4c4a85165a8d2ef77489", exam_question_id: "2084", answer: "C", question_title: "中国共产党人的初心和使命，就是为中国人民（ &nbsp; ），为中华民族（ &nbsp; ）。这个初心和使命是激励中国共产党人不断前进的根本动力。"},

@@ -9,8 +9,12 @@ class Student < ApplicationRecord
   end
 
   def can_exam?
-    # 逻辑保持：10分钟内更新过就隐藏按钮
-    updated_at < (10.minutes.ago + 5.seconds)
+    # 没有任何进行中的记录，且符合 10 分钟冷却
+    records_blank? && updated_at < (10.minutes.ago + 5.seconds)
+  end
+
+  def records_blank?
+    law_record.blank? && math_record.blank? && chinese_record.blank? && social_record.blank?
   end
   
   # --- 实例方法：这个学生自己去同步 ---
@@ -37,13 +41,24 @@ class Student < ApplicationRecord
 
     api_data.each do |item|
       score = item["studentScore"]
-      count = item["exam1Num"].to_i
       
+      # 优先获取未完成的 RecordId，如果没有则获取该科目的通用 id
+      # 这样在 ExamJob 中可以直接接力继续考试
+      record_id = item["unfinishedRecordId"].presence || item["id"]
+
       case item["papername"]
-      when /法律/ then self.law_score = score; self.law_count = count
-      when /数学/ then self.math_score = score; self.math_count = count
-      when /语文/ then self.chinese_score = score; self.chinese_count = count
-      when /社会/ then self.social_score = score; self.social_count = count
+      when /法律/
+        self.law_score = score
+        self.law_record = record_id
+      when /数学/
+        self.math_score = score
+        self.math_record = record_id
+      when /语文/
+        self.chinese_score = score
+        self.chinese_record = record_id
+      when /社会/
+        self.social_score = score
+        self.social_record = record_id
       end
     end
     self.save!

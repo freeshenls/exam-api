@@ -18,7 +18,7 @@
       
       <%# 隐藏的按钮：等倒计时结束直接变出来 %>
       <div data-countdown-target="button" style="display: none;">
-        <%= button_to '考试', run_exam_exam_path(s), method: :post %>
+        <%= button_to '提交成绩', submit_exam_exam_path(s), method: :post %>
       </div>
     <% end %>
   </td>

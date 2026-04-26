@@ -1,6 +1,6 @@
 class ExamsController < ApplicationController
   # 必须跳过 CSRF 校验（如果你是通过 API 或者简单的异步按钮调用）
-  skip_before_action :verify_authenticity_token, only: [:run_exam]
+  skip_before_action :verify_authenticity_token, only: [:run_exam, :submit_exam]
 
   def run_exam
     # 1. 锁定学生
@@ -22,5 +22,46 @@ class ExamsController < ApplicationController
     # 4. 返回 204 No Content
     # 因为有 turbo_stream_from，页面会自动等待 Model 的下一次广播来更新分数
     head :no_content
+  end
+
+  def submit_exam
+    @student = Student.find(params[:id])
+    
+    if @student
+      # 1. 扫描数据库中所有非空的 recordId
+      # 对应字段：law_record, math_record, chinese_record, social_record
+      records = [
+        @student.law_record, 
+        @student.math_record, 
+        @student.chinese_record, 
+        @student.social_record
+      ].compact.reject(&:empty?)
+
+      if records.any?
+        conn = Faraday.new(url: "http://cj.nbjyzx.net:10000") do |f|
+          f.request :url_encoded
+          f.adapter Faraday.default_adapter
+        end
+
+        # 2. 批量提交所有找到的记录
+        records.each do |rid|
+          conn.post("/stuCurUser/submitExamOfficial") do |req|
+            req.headers['Cookie'] = @student.cookie
+            req.headers['X-Requested-With'] = "XMLHttpRequest"
+            req.body = { recordId: rid }
+          end
+          puts "📤 [#{@student.username}] 已从数据库读取并提交记录: #{rid}"
+        end
+
+        # 3. 统一等待结算并同步分数
+        # sync_exams! 执行后，如果远程已结项，这些字段会被清空，从而让前端按钮消失
+        sleep 5
+        @student.sync_exams!
+      end
+
+      head :no_content
+    else
+      head :bad_request
+    end
   end
 end

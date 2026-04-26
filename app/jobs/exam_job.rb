@@ -36,9 +36,9 @@ class ExamJob < ApplicationJob
       sleep rand(0.3..0.6)
     end
 
-    # 4. 交卷结算
-    sleep rand(11..15).minutes
-    finish_and_update_score(student, record_id)
+    # ✅ 核心逻辑：立即同步 recordId 到数据库 (xx_record 字段)
+    # 这会触发 Student 模型里的 sync_exams!，利用远程返回的 unfinishedRecordId 入库
+    student.sync_exams!
   end
 
   private
@@ -73,15 +73,5 @@ class ExamJob < ApplicationJob
         choice: choice_val
       }
     end
-  end
-
-  def finish_and_update_score(student, record_id)
-    @conn.post("/stuCurUser/submitExamOfficial") do |req|
-      req.headers['Cookie'] = student.cookie
-      req.headers['X-Requested-With'] = "XMLHttpRequest"
-      req.body = { recordId: record_id }
-    end
-    sleep 10
-    student.sync_exams!
   end
 end

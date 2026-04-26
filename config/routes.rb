@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   resources :exams, only: [] do
     member do
       post :run_exam
+      post :submit_exam
     end
   end
 end
