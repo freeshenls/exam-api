@@ -280,7 +280,7 @@ namespace :student do
           student = Student.find_by(username: username)
           student.sync_exams!
           
-          if student && (student.law_score < 60 || student.math_score < 60 || student.chinese_score < 60 || student.social_score < 60)
+          if student && (student.law_score.to_i < 60 || student.math_score.to_i < 60 || student.chinese_score.to_i < 60 || student.social_score.to_i < 60)
             # 依次执行四门考试（同步模式）
             # 注意：如果 ExamJob 内部有 sleep 10-15 分钟，脚本会在这里等很久
             ExamJob.perform_now(student.id, "15f22328481f4fdab9958f50cc2ff575")
