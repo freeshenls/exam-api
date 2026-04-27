@@ -9,7 +9,7 @@ namespace :vip do
     
     # 待导入数据
     data = <<~DATA
-      13816793613 020625@Crgz
+      18857905600 182673@Crgz
     DATA
 
     puts "🚀 准备调用接口: #{uri}"
